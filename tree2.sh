@@ -1,4 +1,39 @@
 #!/bin/bash
+#!/bin/bash
+
+# Step 1: 输入用户的姓名
+user_name=$(osascript <<EOF
+set response to text returned of (display dialog "input your name please：" default answer "" buttons {"OK"} default button "OK")
+return response
+EOF
+)
+
+# Step 2: 选择用户的性别
+user_gender=$(osascript <<EOF
+set response to button returned of (display dialog "input your gender please：" buttons {"Male", "Female"} default button "Male")
+return response
+EOF
+)
+
+# Step 3: 选择用户使用的语言
+user_language=$(osascript <<EOF
+set response to (choose from list {"English", "简体中文", "繁体中文", "Tiếng Việt", "Bahasa Indonesia", "日本語", "বাংলা ভাষা"} with prompt "select your language please：")
+if response is false then
+    return "未选择语言"
+else
+    return response as text
+end if
+EOF
+)
+
+# Step 4: 输入用户拥有的品质
+user_quality=$(osascript <<EOF
+set response to text returned of (display dialog "input your personality" default answer "" buttons {"OK"} default button "OK")
+return response
+EOF
+)
+
+
 trap "tput reset; tput cnorm; exit" 2
 clear
 tput civis
@@ -71,12 +106,33 @@ remove_stars() {
 
 # Show message after 5 seconds
 show_message() {
-    sleep 5
+    if [ "$user_gender" = "Female" ]; then
+        title="Miss"
+    else
+        title="Mr"
+    fi
+    sleep 1
     tput cup 0 $((c - 16))  # Position message at the top center
     tput setaf 2; tput bold
-    echo "Miss Esther, You have a warm heart."
+    echo "$title $user_name, You have a $user_quality."
     tput cup 1 $((c - 30))
-    echo "I’m very happy to work with you. This time has been truly joyful."
+    if [ "$user_language" = "简体中文" ]; then
+        echo "非常开心和你一起工作，祝你健康，快乐，平安，幸福。"
+    elif [ "$user_language" = "繁体中文" ]; then
+        echo "非常開心和你一起工作，祝你健康，快樂，平安，幸福。"
+    elif [ "$user_language" = "English" ]; then
+        echo "I’m very happy to work with you. Wishing you health, happiness, peace, and joy."
+    elif [ "$user_language" = "日本語" ]; then
+        echo "一緒に仕事ができて本当に嬉しいです。健康で、幸せで、平和で、楽しい日々をお過ごしください。"
+    elif [ "$user_language" = "Tiếng Việt" ]; then
+        echo "Tôi rất vui khi được làm việc cùng bạn. Chúc bạn sức khỏe, hạnh phúc, bình an và niềm vui."
+    elif [ "$user_language" = "Bahasa Indonesia" ]; then
+        echo "Saya sangat senang bekerja bersama Anda. Semoga Anda sehat, bahagia, damai, dan sejahtera."
+    elif [ "$user_language" = "বাংলা ভাষা" ]; then
+        echo "তোমার সঙ্গে কাজ করতে পেরে আমি খুব খুশি। তোমার সুস্বাস্থ্য, সুখ, শান্তি এবং সমৃদ্ধি কামনা করি।"
+    else
+        echo "语言未被识别。"
+    fi
 }
 
 show_message &
